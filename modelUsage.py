@@ -21,7 +21,7 @@ from sklearn.mixture import GaussianMixture
 
 # %%
 
-genomeScores = pd.read_csv('genomeScores_usable.csv')
+genomeScores = pd.read_csv('Data/genomeScores_usable.csv')
 # %%
 
 class ModelTest:
@@ -61,54 +61,17 @@ class ModelTest:
         self.plot_clusters("Category", "KMeans")
         self.kmeansModel = kmeans
 
-    def dbscan_clustering(self):
-        print(f'running dbscan_clustering')
-        # Apply DBSCAN Clustering
-        dbscan = DBSCAN(eps=0.5, min_samples=5)
-        dbscan.fit(self.tag_relevances)
-        self.data["DBSCAN_Cluster"] = dbscan.labels_
-        self.plot_clusters("DBSCAN_Cluster", "DBSCAN")
-
-    def hierarchical_clustering(self):
-        print(f'running hierarchical_clustering')
-        # Apply Hierarchical Clustering
-        Z = linkage(self.tag_relevances, 'ward')
-        self.data["Hierarchical_Cluster"] = fcluster(Z, t=5, criterion='maxclust')
-        self.plot_clusters("Hierarchical_Cluster", "Hierarchical")
-
-    def spectral_clustering(self):
-        print(f'running spectral_clustering')
-        # Apply Spectral Clustering
-        spectral = SpectralClustering(n_clusters=5, assign_labels='discretize', random_state=0)
-        spectral.fit(self.tag_relevances)
-        self.data["Spectral_Cluster"] = spectral.labels_
-        self.plot_clusters("Spectral_Cluster", "Spectral")
-
-    def gmm_clustering(self):
-        print(f'running gmm_clustering')
-        # Apply Gaussian Mixture Models
-        gmm = GaussianMixture(n_components=5, random_state=0)
-        gmm.fit(self.tag_relevances)
-        self.data["GMM_Cluster"] = gmm.predict(self.tag_relevances)
-        self.plot_clusters("GMM_Cluster", "GMM")
-
     def save_results(self, file):
         print(f'running save_results')
         # Save results to a new CSV file
         self.data.to_csv(file, index=False)
 
 
-categoryCount = 50
+CATEGORY_COUNT = 50
 
-if __name__ == '__main__':
-    # Usage
-    model_test = ModelTest('genomeScores_usable.csv')
-    model_test.kmeans_clustering(n=categoryCount)
-    # model_test.dbscan_clustering()
-    # model_test.hierarchical_clustering()
-    # model_test.spectral_clustering()
-    # model_test.gmm_clustering()
-    model_test.save_results('movies_clustered_kmeans.csv')
+model_test = ModelTest('Data/genomeScores_usable.csv')
+model_test.kmeans_clustering(n=CATEGORY_COUNT)
+model_test.save_results('Data/movies_clustered_kmeans.csv')
     
     
 # %%
@@ -160,7 +123,7 @@ class User():
         
         categoryUserRatingSorted = self.userFilmList.drop(columns='movieId').groupby('Category').mean().sort_values(by='Category', ascending=True)
         
-        preferencesRaw = np.zeros(categoryCount)
+        preferencesRaw = np.zeros(CATEGORY_COUNT)
         
         for ind, row in categoryUserRatingSorted.iterrows():
             preferencesRaw[ind] = row['rating']
@@ -173,7 +136,7 @@ class User():
 
 def pickFilmFromPreferences(preferences = None):
     if preferences is None:
-        preferences = np.ones(categoryCount)/categoryCount
+        preferences = np.ones(CATEGORY_COUNT)/CATEGORY_COUNT
 
     rnumber = random.random()
     
