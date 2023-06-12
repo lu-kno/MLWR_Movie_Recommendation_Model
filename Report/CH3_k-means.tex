@@ -1,0 +1,20 @@
+\section{K-Means Clustering}
+In the domain of unsupervised learning techniques, K-Means clustering stands out for its simplicity and efficiency. This algorithm, introduced by Stuart Lloyd and Edward W. Forgy in the mid-twentieth century, has been widely adopted for its ability to quickly segment unlabeled datasets into distinct groups, or clusters, of related instances \cite{ref_handsOnMachineLearning}.
+
+\subsection{Concept behind k-means}
+The idea behind K-Means clustering lies in the notion of 'centroid-based clustering'. The algorithm begins by defining 'k' centroids randomly in the feature space, where 'k' is the number of clusters to be identified. Each instance in the dataset is then assigned to the cluster whose centroid it is closest to, thereby creating 'k' groups of related instances. 
+
+The centroids are then updated based on the mean feature values of the instances in their respective clusters, and the instances are reassigned to the closest centroid once more. This process of updating centroids and reassigning instances continues iteratively until the centroids no longer change, indicating that the algorithm has identified the optimal grouping of instances into 'k' clusters.\cite{ref_handsOnMachineLearning} 
+
+In the next sections, we will discuss how we implemented the K-Means algorithm in our study and highlight some of the results we obtained.
+
+\subsection{Solution Implementation}
+
+In this section, the implementation of the k-means clustering method will be discussed. The solution employs a k-means clustering algorithm for its implementation, utilizing the scikit-learn library. The Python script detailing this implementation can be found in the Appendix.
+
+Upon initialization, the preprocessed data is loaded from a CSV file, identifying unique identifiers for each movie and considering the rest of the columns as tag relevances. The k-means clustering process is then applied to this dataset, which organizes movies into groups based on the similarities in their tag relevances.
+
+The implementation further includes capabilities to predict the cluster of new instances, and retrieve the assigned cluster of a movie, contributing to the flexibility and applicability of the solution.
+
+\subsection{Clustering Results}
+ \colorbox{yellow}{TODO:: Show and discuss clustring results }\\

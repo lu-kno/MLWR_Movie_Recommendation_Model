@@ -5,7 +5,11 @@ import json
 import os
 from typing import Any, List, Tuple, Sequence, Optional, Union, Dict, Set, Iterable, Hashable
 
+from sklearn.manifold import TSNE
+
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+
 import numpy as np
 import pandas as pd
 import random
@@ -30,12 +34,13 @@ class KMCModel:
         self.data = pd.read_csv(file)
         self.movies = self.data['movieId']
         self.tag_relevances = self.data.drop('movieId', axis=1)
+        self.n=-1
 
         # Create results directory if not exists
         if not os.path.exists("results"):
             os.makedirs("results")
 
-    def plot_clusters(self, column, method_name):
+    def plot_clusters(self, column, dotsne=False):
         print(f'running plot_clusters')
         # Reduce dimensionality to 2D using PCA
         pca = PCA(n_components=2)
@@ -45,9 +50,21 @@ class KMCModel:
         plt.scatter(pca_result[:, 0], pca_result[:, 1], c=self.data[column], cmap='viridis')
         plt.xlabel('Principal Component 1')
         plt.ylabel('Principal Component 2')
-        plt.title(f'{method_name} Clustering')
-        plt.savefig(f'results/{method_name}_clustering_2.png')
+        plt.title(f'kmeans_clustering Clustering PCA Plot K={self.n}')
+        plt.savefig(f'results/kmeans_clustering_clustering_PCA_2_K{self.n}.png')
         plt.clf()
+        
+        if dotsne:
+            # t-SNE plot
+            tsne = TSNE(n_components=2, verbose=1, perplexity=self.n, n_iter=300)
+            tsne_results = tsne.fit_transform(self.tag_relevances)
+            plt.scatter(tsne_results[:, 0], tsne_results[:, 1], c=self.data[column], cmap='viridis')
+            plt.xlabel('t-SNE 1')
+            plt.ylabel('t-SNE 2')
+            plt.title(f'kmeans_clustering Clustering t-SNE Plot K={self.n}')
+            plt.savefig(f'results/kmeans_clustering_clustering_tSNE_2_K{self.n}.png')
+            plt.clf()
+            
         
     def predict(self,*args,**kwargs):
         return self.kmeansModel.predict(*args,**kwargs)
@@ -59,12 +76,13 @@ class KMCModel:
         return self.data.loc[self.data['movieId']==filmId,'Category'].values[0]
 
     def kmeans_clustering(self, n=10, max_iter=100):
+        self.n = n
         print(f'running kmeans_clustering')
         # Apply KMeans Clustering
         kmeans = KMeans(n_clusters=n, init='k-means++', max_iter=max_iter, n_init=1)
         kmeans.fit(self.tag_relevances)
         self.data["Category"] = kmeans.predict(self.tag_relevances)
-        self.plot_clusters("Category", "KMeans")
+        self.plot_clusters("Category",)
         self.kmeansModel = kmeans
 
     def save_results(self, file):
@@ -73,11 +91,17 @@ class KMCModel:
         self.data.to_csv(file, index=False)
 
 
-CATEGORY_COUNT = 50
+# for i in [5,6,7,8,9]:
+#     model_test_n = KMCModel('Data/genomeScores_usable.csv')
+#     model_test_n.kmeans_clustering(n=i)
+    
+    
 
+CATEGORY_COUNT = 50
 model_test = KMCModel('Data/genomeScores_usable.csv')
 model_test.kmeans_clustering(n=CATEGORY_COUNT)
 model_test.save_results('Data/movies_clustered_kmeans.csv')
+model_test.plot_clusters("Category")
     
     
 # %%

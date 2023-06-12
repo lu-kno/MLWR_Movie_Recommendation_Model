@@ -1,0 +1,49 @@
+\section{Assessment of the Proposed Solution}
+
+The method used for this project was only one of the many possible approaches to the problem of movie recommendations. Many other methods exist, and each has its own advantages and disadvantages. 
+
+This section aims to provide a general assessment of the advantages and disadvantages of the proposed solution, as well as to discuss alternative paths that could have been taken and are worth exploring.
+
+\subsection{Advantages}
+The proposed solution was able to provide a personalized recommendation service for users based on their past behavior. The system was able to recommend movies that the user would most likely enjoy, based on the user's past behavior. The system was also able to provide recommendations for movies that the user has not seen yet, based on the user's preferences.
+
+\subsubsection{Scalability}
+One key advantage of this approach was its simplicity. The model was relatively easy to implement and required minimal computational resources. The use of K-Means clustering allowed us to group movies into categories based on their tag relevances, highlighting similar thematic elements. 
+
+\subsection{Simplicity}
+Likewise, the preprocessing of the MovieLens dataset was straightforward. The dataset was already well-structured, so that the main task was to simplify the data removing unnecessary information and some level of redundancy due to the human nature of the data collection process and vague nature of the tags compared to the potential complexity of the movies.
+
+\subsubsection{Versatility}
+The model was able to accommodate both explicit and implicit data without requiring specific treatments for each, offering application versatility. The way in which the data was processed allowed the model to take advantage of semantic relation between the tags and their use, which could not have been achieved with hardcoded definitions of the tags and the synonyms (in the literally sense).
+
+% \begin{itemize}
+%     \item \textbf{Performance:} Incorporating matrix factorization and neural networks enhances the recommendation quality compared to traditional methods.
+% \end{itemize}
+
+\subsection{Disadvantages}
+
+Despite its merits, the proposed solution also has several drawbacks:
+
+- it does not relate the behavior of one user to the behavior of other users, which could be useful to identify users with similar preferences and to provide recommendations based on the preferences of other users with similar watch behavior.
+
+- it does not take into account all the metadata available for each movie, such as the cast, the director, the production company, the year of release, etc. This information could be used in cases where a user shown a clear preference towards a specific producer, actor or director, whose movies could encompass a wide range of genres and themes, rendering the clustering based solely on the tags less effective.
+
+
+% \begin{itemize}
+%     \item \textbf{Cold Start Problem:} The system, like many others, encounters difficulties when providing recommendations for new users or items.
+%     \item \textbf{Lack of Interpretability:} The model's reliance on neural networks hinders interpretability, making it difficult to explain why certain recommendations are made.
+% \end{itemize}
+
+\subsection{Alternative Paths That Could Have Been Taken and Are Worth Exploring}
+
+An alternative approach to this problem would be to use a different machine learning algorithm, such as Multilayer Perceptron (MLP) or Support Vector Machine (SVM). These algorithms are able to model more complex non-linear relationships between the data points and could can provide better results in terms of accuracy and precision. However, they require more computational resources, data and time to train the model, as well as an extensive hyperparameter tuning process to achieve the best results.
+
+Another alternative approach would be to use a different dataset, such as the IMDb dataset, which contains more information about the movies, such as the cast, the director, the production company, the year of release, etc. This information could lead to more accurate recommendations, as it would allow the model to take into account relationships between the movies that are not captured by the tags alone.
+
+Nevertheless, this would increase the required processing of the metadata and the comlexity of the model itself, possibly requiring a different machine learning algorithm to be used, since the different possible attributes contained in a movie's metadata would have to be interpreted and encoded in a way that the model can understand.
+
+A final proposal, which would make use of the approach taken in this project, would be to combine output of different K-means clustering models using different walues for K. This would allow the model to take into account different levels of granularity when grouping the movies, which could lead to more accurate recommendations, possibly allowing the user to have the option to choose the level of granularity of the recommendations in order to avoid a positive feedback loop in which the user is only recommended movies that are very similar to the ones they have already seen and isn't able to discover new movies that they might enjoy.
+
+\section{Conclusion}
+
+In conclusion, this project has successfully demonstrated a novel approach for movie recommendations using machine learning. The implementation of K-Means clustering on the MovieLens dataset offered a way to group films into categories based on their tag relevances, highlighting similar thematic elements. This formed the basis for our personalized recommendation system. While the system isn't revolutionary, it offers an alternative to more complex and resource intensive solutions, and provides chance to apply machine learning techniques to a real-world problem resulting interesting insights.
