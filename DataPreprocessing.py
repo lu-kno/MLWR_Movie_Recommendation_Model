@@ -42,7 +42,21 @@ def get_relevant(df: pd.DataFrame, relevantTags: Union[list,pd.Index]) -> pd.Dat
     return df_rel
 
 
-def find_synonyms(df: pd.DataFrame, threshold: float, corr_given: bool=False, plot_corr: bool=False, corr_saveto: Optional[str] = 'corr_arr_relevant') -> list:
+def get_irrelevant(df: pd.DataFrame, relevantTags: Union[list,pd.Index]) -> pd.DataFrame:
+    '''
+    Returns a dataframe with only the relevant tags.
+    Input:
+        df: dataframe with genome scores
+        relevantTags: list of relevant tags (Tags to drop) (type: pd.Index or list)
+    Output:
+        df_irrel: dataframe with only the relevant tags
+    '''
+    df_irrel = df.drop(columns =relevantTags)
+    # print(f'Relevant Gnome Scores Shape = {df_rel.shape}')
+    return df_irrel
+
+
+def find_synonyms(df: pd.DataFrame, threshold: float, corr_given: bool=False, plot_corr: bool=False, corr_saveto: Optional[str] = 'Data/prep_corr_arr_relevant') -> list:
     '''
     Returns a list of synonyms.
     Input:
@@ -162,18 +176,25 @@ CORR_THRESHOLD = 0.5
 # get relevant tags
 relevantTags = find_relevant(genomeScores, MEAN_RELEVANCE_THRESHOLD)
 genomeScores_relevant = get_relevant(genomeScores, relevantTags)
-with open('relevantTags.json','w+') as f:
+with open('Data/prep_relevantTags.json','w+') as f:
     json.dump(genomeScores_relevant.columns.to_list(), f)
 tagCount_relevant = len(relevantTags)
 
-
+# get irrelevant tags (just for reference)
+genomeScores_irrelevant = get_relevant(genomeScores, relevantTags)
+with open('Data/prep_irrelevantTags.json','w+') as f:
+    json.dump(genomeScores_irrelevant.columns.to_list(), f)
+del genomeScores_irrelevant
 
 # deal with synonyms
 synonyms = find_synonyms(genomeScores_relevant, CORR_THRESHOLD)
 genomeScores_usable = replace_synonyms(genomeScores_relevant, synonyms)
-with open('synonyms.json','w+') as f:
-    json.dump(synonyms, f, indent=4)
-genomeScores_usable.to_csv('genomeScores_usable.csv')
+with open('Data/prep_synonyms.json','w+') as f:
+    f.write('[\n')
+    for syn in synonyms:
+        f.write((f'{syn},\n').replace("'",'"'))
+    f.write(']')
+genomeScores_usable.to_csv('Data/prep_genomeScores_usable.csv')
 tagCount_reduced = len(genomeScores_usable.columns)
 
 

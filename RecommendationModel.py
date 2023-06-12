@@ -3,7 +3,7 @@
 
 import json
 import os
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Sequence, Optional, Union, Dict, Set, Iterable, Hashable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +24,7 @@ from sklearn.mixture import GaussianMixture
 genomeScores = pd.read_csv('Data/genomeScores_usable.csv')
 # %%
 
-class ModelTest:
+class KMCModel:
     def __init__(self, file):
         # Load data from CSV file
         self.data = pd.read_csv(file)
@@ -51,6 +51,12 @@ class ModelTest:
         
     def predict(self,*args,**kwargs):
         return self.kmeansModel.predict(*args,**kwargs)
+    
+    def getFilmCategory(self, filmId):
+        if filmId not in self.movies:
+            return None
+        # return self.data.loc[self.data['movieId']==filmId,'Category'].values[0]
+        return self.data.loc[filmId,'Category']
 
     def kmeans_clustering(self, n=10, max_iter=100):
         print(f'running kmeans_clustering')
@@ -69,7 +75,7 @@ class ModelTest:
 
 CATEGORY_COUNT = 50
 
-model_test = ModelTest('Data/genomeScores_usable.csv')
+model_test = KMCModel('Data/genomeScores_usable.csv')
 model_test.kmeans_clustering(n=CATEGORY_COUNT)
 model_test.save_results('Data/movies_clustered_kmeans.csv')
     
@@ -80,16 +86,17 @@ groups = data.groupby('Category')
 
 res=dict()
 
-for g, group in groups:
-    group.drop(columns=['Category'], inplace=True)
-    pd.concat([group,group.mean()],)
-    group.sort_values(by=group.index[-1], axis=1, ascending=False, inplace=True)
+for categoryInd, categoryGroup in groups:
+    categoryGroup.drop(columns=['Category'], inplace=True)
+    categoryGroup = pd.concat([categoryGroup,categoryGroup.mean()],)
+    categoryGroup.sort_values(by=categoryGroup.index[-1], axis=1, ascending=False, inplace=True)
     plt.figure()
-    plt.imshow(group)
-    plt.savefig(f'results/ClusterFilms_{g}.png')
+    plt.imshow(categoryGroup)
+    plt.savefig(f'results/ClusterFilms_{categoryInd}.png')
     plt.close()
-    res[str(group.columns[0:3])]=group.index.tolist()
-    group.to_csv(f'results/ClusterFilms_{g}.csv')
+    res[str(categoryGroup.columns[0:5])]=categoryGroup.index.tolist()
+    categoryGroup.to_csv(f'results/ClusterFilms_{categoryInd}.csv')
+
 
 json.dump(res, open('ClustersFound.json', 'w+'), indent=4)
     
@@ -105,20 +112,25 @@ json.dump(res, open('ClustersFound.json', 'w+'), indent=4)
 # %%
 
 class User():
-    def __init__(self, filmlist, model=None) -> None:        
-        self.preferences: np.ndarray[float] = []    
+    def __init__(self, filmlist: Sequence, model: Optional[KMCModel] = None) -> None:        
+        self.preferences: np.ndarray = np.array([])    
         self.userFilmList: pd.DataFrame = pd.DataFrame(filmlist,columns=['movieId','rating'])
         self.userFilmList.loc[:,'Category'] = None
         
         if model:
             self.calcPreferences()
     
+    def getCategories(self,model=model_test):
+        self.userFilmList.loc[:,'Category'] = self.userFilmList['movieId'].apply(model.getFilmCategory, axis=1)
+
+    
     def calcPreferences(self, model=model_test):
         # cats = model_test.data.loc[model_test.data['col1'].isin(self.userFilmList['movieId'])]
         
         allFilms = model.data[['movieId', 'Category']]
+
         
-        self.userFilmList.loc[:,'Category'] = self.userFilmList.apply(lambda row: allFilms.loc[allFilms['movieId']==row['movieId'],'Category'].values[0], axis=1)
+        # self.userFilmList.loc[:,'Category'] = self.userFilmList.apply(lambda row: allFilms.loc[allFilms['movieId']==row['movieId'],'Category'].values[0], axis=1)
         
         
         categoryUserRatingSorted = self.userFilmList.drop(columns='movieId').groupby('Category').mean().sort_values(by='Category', ascending=True)
