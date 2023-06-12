@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # %%
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
-from matplotlib import cm
-from scipy.stats import gaussian_kde
 import json
-from typing import Any, List, Tuple, Union, Dict, Optional, Set, Sequence, Iterable, Hashable
+import os
+from typing import (Any, Dict, Hashable, Iterable, List, Optional, Sequence,
+                    Set, Tuple, Union)
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib import cm
+from PIL import Image
+from scipy.stats import gaussian_kde
+
+os.mkdir('Data')
 
 
 # %%
@@ -153,15 +157,18 @@ def replace_synonyms(df_: pd.DataFrame, synonyms: List[List[str]]) -> pd.DataFra
 
 
 # %%
-
+print('Loading Data...')
+print('Loading Genome Scores...')
 # load csv in pandas dataframe
 genomeScoresSparse = pd.read_csv('ml-25m/genome-scores.csv')
 genomeScores = genomeScoresSparse.pivot(index='movieId', columns='tagId', values='relevance')
 
+print('Loading Genome Tags...')
 genomeTags = pd.read_csv('ml-25m/genome-tags.csv')
 tagsDict = genomeTags.set_index('tagId').to_dict()['tag']
 genomeScores = genomeScores.rename(columns=tagsDict)
 
+print('Loading Movie Titles...')
 movieIds = pd.read_csv('ml-25m/movies.csv')
 movieIdsDict = movieIds.set_index('movieId').to_dict()['title']
 genomeScores = genomeScores.rename(index=movieIdsDict) 
@@ -173,6 +180,7 @@ tagCount_start = len(genomeScores.columns)
 MEAN_RELEVANCE_THRESHOLD = 0.08
 CORR_THRESHOLD = 0.5
 
+print('Finding Relevant Tags...')
 # get relevant tags
 relevantTags = find_relevant(genomeScores, MEAN_RELEVANCE_THRESHOLD)
 genomeScores_relevant = get_relevant(genomeScores, relevantTags)
@@ -186,6 +194,7 @@ with open('Data/prep_irrelevantTags.json','w+') as f:
     json.dump(genomeScores_irrelevant.columns.to_list(), f)
 del genomeScores_irrelevant
 
+print('Finding Synonyms...')
 # deal with synonyms
 synonyms = find_synonyms(genomeScores_relevant, CORR_THRESHOLD)
 genomeScores_usable = replace_synonyms(genomeScores_relevant, synonyms)

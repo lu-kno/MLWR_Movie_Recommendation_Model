@@ -3,25 +3,24 @@
 
 import json
 import os
-from typing import Any, List, Tuple, Sequence, Optional, Union, Dict, Set, Iterable, Hashable
+import random
+from typing import (Any, Dict, Hashable, Iterable, List, Optional, Sequence,
+                    Set, Tuple, Union)
 
-from sklearn.manifold import TSNE
-
-import matplotlib.pyplot as plt
 import matplotlib as mpl
-
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import random
 from matplotlib import cm
 from PIL import Image
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.stats import gaussian_kde
 from sklearn.cluster import DBSCAN, KMeans, SpectralClustering
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 from sklearn.mixture import GaussianMixture
 
-
+os.mkdir('results')
 
 # %%
 
