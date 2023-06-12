@@ -89,18 +89,20 @@ res=dict()
 
 for categoryInd, categoryGroup in groups:
     categoryGroup.drop(columns=['Category'], inplace=True)
-    categoryGroup = pd.concat([categoryGroup,categoryGroup.mean()],)
+    categoryGroup.loc['mean'] = categoryGroup.mean()
     categoryGroup.sort_values(by=categoryGroup.index[-1], axis=1, ascending=False, inplace=True)
+    sumOfRelevances = categoryGroup.sum(axis=0)
+    maxRelevance = sumOfRelevances.max()
+    tagMaxRelevance = sumOfRelevances.idxmax()
     plt.figure()
     plt.imshow(categoryGroup)
-    plt.savefig(f'results/ClusterFilms_{categoryInd}.png')
+    plt.savefig(f'results/ClusterFilms_{categoryInd}{tagMaxRelevance}.png')
     plt.close()
     res[str(categoryGroup.columns[0:5])]=categoryGroup.index.tolist()
-    categoryGroup.to_csv(f'results/ClusterFilms_{categoryInd}.csv')
+    categoryGroup.to_csv(f'results/ClusterFilms_{categoryInd}{tagMaxRelevance}.csv')
 
 
-json.dump(res, open('ClustersFound.json', 'w+'), indent=4)
-    
+json.dump(res, open('Data/ClustersFound.json', 'w+'), indent=4)
     
 
 # Get list of films from user
