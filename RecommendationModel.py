@@ -97,9 +97,9 @@ class KMCModel:
     
 
 CATEGORY_COUNT = 50
-model_test = KMCModel('Data/genomeScores_usable.csv')
+model_test = KMCModel('Data/prep_genomeScores_usable.csv')
 model_test.kmeans_clustering(n=CATEGORY_COUNT)
-model_test.save_results('Data/movies_clustered_kmeans.csv')
+model_test.save_results('Data/rmodel_movies_clustered_kmeans.csv')
 model_test.plot_clusters("Category")
     
     
@@ -125,7 +125,8 @@ for categoryInd, categoryGroup in groups:
     categoryGroup.to_csv(f'results/ClusterFilms_{categoryInd}{tagMaxRelevance}.csv')
 
 
-json.dump(res, open('Data/ClustersFound.json', 'w+'), indent=4)
+with open('Data/rmodel_ClustersFound.json', 'w+') as f:
+    json.dump(res, f, indent=4)
     
 
 # Get list of films from user
