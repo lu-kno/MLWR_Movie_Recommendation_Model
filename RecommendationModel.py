@@ -20,7 +20,9 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.mixture import GaussianMixture
 
-os.mkdir('results')
+
+if not os.path.exists('results'):
+    os.mkdir('results')
 
 # %%
 

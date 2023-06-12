@@ -13,7 +13,8 @@ from matplotlib import cm
 from PIL import Image
 from scipy.stats import gaussian_kde
 
-os.mkdir('Data')
+if not os.path.exists('Data'):
+    os.mkdir('Data')
 
 
 # %%
