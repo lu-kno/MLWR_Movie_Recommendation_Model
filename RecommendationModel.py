@@ -111,21 +111,27 @@ data = model_test.data.set_index('movieId')
 groups = data.groupby('Category')
 
 res=dict()
-
+print('plotting individual clusters')
 for categoryInd, categoryGroup in groups:
     categoryGroup.drop(columns=['Category'], inplace=True)
     categoryGroup.loc['mean'] = categoryGroup.mean()
     categoryGroup.sort_values(by=categoryGroup.index[-1], axis=1, ascending=False, inplace=True)
     sumOfRelevances = categoryGroup.sum(axis=0)
-    maxRelevance = sumOfRelevances.max()
-    tagMaxRelevance = sumOfRelevances.idxmax()
+    sortedRelevances = sumOfRelevances.sort_values(ascending=False)
+    tagMaxRelevance = sortedRelevances.index[0]
+    tagsStr = (', '.join(sortedRelevances.index[0:5].tolist()))
+    tagsStr = f'Cluster {categoryInd} - Relevant Tags {tagsStr}'[:60] + '...'
     plt.figure()
     plt.imshow(categoryGroup)
+    cbar = plt.colorbar()
+    cbar.ax.set_ylabel('Relevance',rotation=90)
+    plt.ylabel('Movies (unordered)')
+    plt.xlabel('Tags (ordered by mean relevance)')
+    plt.suptitle(tagsStr)
     plt.savefig(f'results/ClusterFilms_{categoryInd}{tagMaxRelevance}.png')
     plt.close()
     res[str(categoryGroup.columns[0:5])]=categoryGroup.index.tolist()
     categoryGroup.to_csv(f'results/ClusterFilms_{categoryInd}{tagMaxRelevance}.csv')
-
 
 with open('Data/rmodel_ClustersFound.json', 'w+') as f:
     json.dump(res, f, indent=4)
