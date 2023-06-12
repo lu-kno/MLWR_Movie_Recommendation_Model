@@ -21,7 +21,7 @@ from sklearn.mixture import GaussianMixture
 
 # %%
 
-genomeScores = pd.read_csv('Data/genomeScores_usable.csv')
+genomeScores = pd.read_csv('Data/prep_genomeScores_usable.csv')
 # %%
 
 class KMCModel:
@@ -53,10 +53,10 @@ class KMCModel:
         return self.kmeansModel.predict(*args,**kwargs)
     
     def getFilmCategory(self, filmId):
-        if filmId not in self.movies:
+        if filmId not in self.movies.values:
             return None
         # return self.data.loc[self.data['movieId']==filmId,'Category'].values[0]
-        return self.data.loc[filmId,'Category']
+        return self.data.loc[self.data['movieId']==filmId,'Category'].values[0]
 
     def kmeans_clustering(self, n=10, max_iter=100):
         print(f'running kmeans_clustering')
@@ -81,6 +81,7 @@ model_test.save_results('Data/movies_clustered_kmeans.csv')
     
     
 # %%
+
 data = model_test.data.set_index('movieId')
 groups = data.groupby('Category')
 
@@ -118,16 +119,17 @@ class User():
         self.userFilmList.loc[:,'Category'] = None
         
         if model:
-            self.calcPreferences()
+            self.getCategories(model=model)
+            self.calcPreferences(model=model)
     
-    def getCategories(self,model=model_test):
-        self.userFilmList.loc[:,'Category'] = self.userFilmList['movieId'].apply(model.getFilmCategory, axis=1)
+    def getCategories(self,model: KMCModel = model_test) -> None:
+        self.userFilmList.loc[:,'Category'] = self.userFilmList['movieId'].apply(model.getFilmCategory)
 
     
-    def calcPreferences(self, model=model_test):
+    def calcPreferences(self, model: KMCModel = model_test) -> np.ndarray:
         # cats = model_test.data.loc[model_test.data['col1'].isin(self.userFilmList['movieId'])]
         
-        allFilms = model.data[['movieId', 'Category']]
+        # allFilms = model.data[['movieId', 'Category']]
 
         
         # self.userFilmList.loc[:,'Category'] = self.userFilmList.apply(lambda row: allFilms.loc[allFilms['movieId']==row['movieId'],'Category'].values[0], axis=1)
@@ -138,7 +140,7 @@ class User():
         preferencesRaw = np.zeros(CATEGORY_COUNT)
         
         for ind, row in categoryUserRatingSorted.iterrows():
-            preferencesRaw[ind] = row['rating']
+            preferencesRaw[int(ind)] = row['rating']
             
         self.preferences = preferencesRaw/np.sum(preferencesRaw)
         
@@ -181,6 +183,7 @@ user_groups = ratings_df.groupby('userId')
 
 users: List[User] = []
 
+# %%
 for user_id, user_ratings in user_groups:
     if user_id > 5:
         break
